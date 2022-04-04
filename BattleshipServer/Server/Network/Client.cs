@@ -4,7 +4,7 @@ namespace BattleshipServer.Server.Network
 {
     public abstract class Client : IDisposable
     {
-        protected readonly Socket socket;
+        public readonly Socket Socket;
 
         public event Action<Packet>? OnPacket;
         public event Action<Client>? OnDisconnect;
@@ -13,9 +13,7 @@ namespace BattleshipServer.Server.Network
 
         public Client(Socket socket)
         {
-            this.socket = socket;
-
-            Receive();
+            this.Socket = socket;
         }
 
         protected void Receive()
@@ -25,22 +23,22 @@ namespace BattleshipServer.Server.Network
             var recvBuffer = new byte[1024]; // max buffer size
             var state = recvBuffer;
 
-            socket.BeginReceive(recvBuffer, 0, recvBuffer.Length, SocketFlags.None, EndReceive, state);
+            Socket.BeginReceive(recvBuffer, 0, recvBuffer.Length, SocketFlags.None, EndReceive, state);
         }
 
-        private void EndReceive(IAsyncResult ar)
+        private void EndReceive(IAsyncResult iar)
         {
             if (disposed) return;
 
-            var bytesRead = socket.EndReceive(ar, out var errorCode);
+            var bytesRead = Socket.EndReceive(iar, out var errorCode);
 
-            if (bytesRead == 0 || errorCode != SocketError.Success || ar.AsyncState == null)
+            if (errorCode != SocketError.Success)
             {
                 Dispose();
             }
-            else
+            else if (bytesRead > 0)
             {
-                var buffer = (byte[])ar.AsyncState;
+                var buffer = (byte[])iar.AsyncState!;
                 var packet = new Packet(buffer);
 
                 OnPacket?.Invoke(packet);
@@ -53,9 +51,9 @@ namespace BattleshipServer.Server.Network
         {
             if (disposed) return;
 
-            int sent = socket.Send(packet.Buffer, 0, packet.Buffer.Length, SocketFlags.None, out var error);
+            int sent = Socket.Send(packet.Buffer, 0, packet.Buffer.Length, SocketFlags.None, out var error);
 
-            if (sent == 0 || error != SocketError.Success)
+            if (error != SocketError.Success)
             {
                 Dispose();
             }
@@ -65,7 +63,7 @@ namespace BattleshipServer.Server.Network
         {
             if (disposed) return;
 
-            socket.BeginSend(packet.Buffer, 0, packet.Buffer.Length, SocketFlags.None, out var error, EndSend, packet);
+            Socket.BeginSend(packet.Buffer, 0, packet.Buffer.Length, SocketFlags.None, out var error, EndSend, packet);
 
             if (error != SocketError.Success || error != SocketError.IOPending)
             {
@@ -79,9 +77,9 @@ namespace BattleshipServer.Server.Network
         {
             if (disposed) return;
 
-            int sent = socket.EndSend(ar, out var error);
+            int sent = Socket.EndSend(ar, out var error);
 
-            if (sent == 0 || error != SocketError.Success)
+            if (error != SocketError.Success)
             {
                 Dispose();
             }
@@ -93,12 +91,12 @@ namespace BattleshipServer.Server.Network
             {
                 disposed = true;
 
-                socket?.Shutdown(SocketShutdown.Both);
-                socket?.Close();
-
                 OnDisconnect?.Invoke(this);
 
-                socket?.Dispose();
+                Socket?.Shutdown(SocketShutdown.Both);
+                Socket?.Close();
+
+                Socket?.Dispose();
             }
         }
     }

@@ -52,6 +52,7 @@ namespace BattleshipServer.Server
         {
             // TODO: Announce disconnect to host
             clients.Remove((GameClient)client);
+
         }
 
         private void ProcessPacket(Packet packet)

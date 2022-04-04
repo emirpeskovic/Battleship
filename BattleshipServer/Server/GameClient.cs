@@ -7,6 +7,7 @@ namespace BattleshipServer.Server
     {
         public GameClient(Socket socket) : base(socket)
         {
+            Receive();
         }
 
         public override void SendPacket(Packet packet)
