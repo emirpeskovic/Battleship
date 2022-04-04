@@ -6,23 +6,58 @@ namespace BattleshipServer.Server
 {
     public class GameServer
     {
-        private Acceptor acceptor;
+        private readonly Acceptor acceptor;
+        private readonly List<GameClient> clients;
+
+        private bool running = false;
 
         public GameServer(IPAddress address, int port)
         {
             acceptor = new Acceptor(address, port);
+            clients = new();
         }
 
         public void Run()
         {
             acceptor.OnClientAccepted += ClientConnected;
-
             acceptor.StartListen();
+
+            running = true;
+
+            Console.WriteLine("[GameServer] Running...");
+            Console.WriteLine("[GameServer] Type 'exit' to stop the server.");
+
+            while (running)
+            {
+                string input = Console.ReadLine()!;
+
+                if (input == "exit")
+                {
+                    running = false;
+                }
+            }
         }
 
         private void ClientConnected(Socket obj)
         {
+            GameClient client = new(obj);
+
+            client.OnPacket += ProcessPacket;
+            client.OnDisconnect += ClientDisconnected;
+
+            clients.Add(client);
+        }
+
+        private void ClientDisconnected(Client client)
+        {
             
         }
+
+        private void ProcessPacket(Packet packet)
+        {
+            
+        }
+
+        private void Announce(Packet packet) => clients.ForEach(client => client.SendPacket(packet));
     }
 }

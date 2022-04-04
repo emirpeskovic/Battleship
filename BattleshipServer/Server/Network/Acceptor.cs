@@ -22,7 +22,10 @@ namespace BattleshipServer.Server.Network
         public void StartListen()
         {
             socket.Listen(10);
-            BeginAccept();            
+
+            ShouldAccept = true;
+            
+            BeginAccept();
         }
 
         private void BeginAccept()
@@ -36,6 +39,8 @@ namespace BattleshipServer.Server.Network
             try
             {
                 Socket client = socket.EndAccept(ar);
+
+                Console.WriteLine("Client connected on: " + client.RemoteEndPoint);
 
                 OnClientAccepted?.Invoke(client);
 
