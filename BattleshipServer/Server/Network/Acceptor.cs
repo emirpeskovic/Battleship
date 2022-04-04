@@ -21,7 +21,7 @@ namespace BattleshipServer.Server.Network
 
         public void StartListen()
         {
-            socket.Listen(10);
+            socket.Listen();
 
             ShouldAccept = true;
             

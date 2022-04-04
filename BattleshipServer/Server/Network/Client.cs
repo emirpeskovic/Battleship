@@ -16,6 +16,7 @@ namespace BattleshipServer.Server.Network
             this.Socket = socket;
         }
 
+        // Receive data from the client
         protected void Receive()
         {
             if (disposed) return;
@@ -26,6 +27,7 @@ namespace BattleshipServer.Server.Network
             Socket.BeginReceive(recvBuffer, 0, recvBuffer.Length, SocketFlags.None, EndReceive, state);
         }
 
+        // Parse data from client
         private void EndReceive(IAsyncResult iar)
         {
             if (disposed) return;
@@ -47,6 +49,7 @@ namespace BattleshipServer.Server.Network
             }
         }
 
+        // Send a packet synchronously
         protected void SendSync(Packet packet)
         {
             if (disposed) return;
@@ -59,6 +62,7 @@ namespace BattleshipServer.Server.Network
             }
         }
 
+        // Send a packet asynchronously
         protected void SendAsync(Packet packet)
         {
             if (disposed) return;
@@ -71,6 +75,8 @@ namespace BattleshipServer.Server.Network
             }
         }
 
+        // Override on class inheriting from this one, that class can decide whether to
+        // use SendAsync or SendSync
         public abstract void SendPacket(Packet packet);
 
         private void EndSend(IAsyncResult ar)
