@@ -15,7 +15,7 @@ namespace BattleshipServer.Server.Network
         public byte[] Buffer { get => GetBuffer(); }
 
         // Network operation code so we can figure out what the packet is supposed to do
-        private OpCode opCode { get => (OpCode)BitConverter.ToUInt16(Data, 0); }
+        public OpCode OpCode { get => (OpCode)BitConverter.ToUInt16(Data, 0); }
 
         // Get actual buffer size, so we don't send a packet that's 1024 in size every single time
         // Return the buffer in it's actual size, and append the size of the buffer to the beginning of the buffer

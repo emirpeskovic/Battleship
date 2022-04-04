@@ -2,7 +2,7 @@
 
 namespace BattleshipServer.Server.Network
 {
-    public abstract class Client
+    public abstract class Client : IDisposable
     {
         protected readonly Socket socket;
 

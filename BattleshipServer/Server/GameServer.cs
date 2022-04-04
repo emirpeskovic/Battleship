@@ -50,12 +50,18 @@ namespace BattleshipServer.Server
 
         private void ClientDisconnected(Client client)
         {
-            
+            // TODO: Announce disconnect to host
+            clients.Remove((GameClient)client);
         }
 
         private void ProcessPacket(Packet packet)
         {
-            
+            switch (packet.OpCode)
+            {
+                default:
+                    Console.WriteLine("[GameServer] Unhandled packet: " + packet.OpCode);
+                    break;
+            }
         }
 
         private void Announce(Packet packet) => clients.ForEach(client => client.SendPacket(packet));
