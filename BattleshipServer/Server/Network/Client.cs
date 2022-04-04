@@ -13,7 +13,7 @@ namespace BattleshipServer.Server.Network
 
         public Client(Socket socket)
         {
-            this.Socket = socket;
+            Socket = socket;
         }
 
         // Receive data from the client

@@ -40,12 +40,25 @@ namespace BattleshipServer.Server
 
         private void ClientConnected(Socket obj)
         {
-            GameClient client = new(obj);
+            // Max 2 clients per game
+            if (clients.Count == 2)
+            {
+                obj.Close();
+                return;
+            }
 
-            client.OnPacket += ProcessPacket;
-            client.OnDisconnect += ClientDisconnected;
+            lock (clients)
+            {
+                GameClient client = new(obj);
+                
+                client.OnPacket += ProcessPacket;
+                client.OnDisconnect += ClientDisconnected;
 
-            clients.Add(client);
+                if (clients.Count == 0)
+                    client.GameMaster = true;
+
+                clients.Add(client);
+            }
         }
 
         private void ClientDisconnected(Client client)
@@ -59,6 +72,8 @@ namespace BattleshipServer.Server
         {
             switch (packet.OpCode)
             {
+                case OpCode.CREATE_GAME:
+                    break;
                 default:
                     Console.WriteLine("[GameServer] Unhandled packet: " + packet.OpCode);
                     break;

@@ -5,6 +5,8 @@ namespace BattleshipServer.Server.Network
     public enum OpCode : short
     {
         PLAYER_JOINED,
+        CREATE_GAME,
+        SET_RULES,
 
         TILE_CLICK,
     }
