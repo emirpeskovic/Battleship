@@ -1,0 +1,21 @@
+﻿<Window x:Class="BattleshipGame.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BattleshipGame"
+        mc:Ignorable="d"
+        Title="Battleship: Dumb WPF Edition"
+        Width="auto"
+        Height="auto"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+    <Grid Width="250" Height="150">
+        <Label Content="Choose your profile name" Margin="49,11,47,115"/>
+        <TextBox x:Name="profileNameTextBox"  TextWrapping="Wrap" Margin="48,35,48,96" TextChanged="profileNameTextBox_TextChanged"/>
+        <Label Content="Server IP" HorizontalAlignment="Left" Margin="10,93,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="serverIpTextBox" TextWrapping="Wrap" Text="127.0.0.1" Margin="10,119,145,13" TextChanged="serverIpTextBox_TextChanged"/>
+        <Button x:Name="joinGameButton" Content="Join Game" Margin="163,116,10,10" Click="joinGameButton_Click"/>
+    </Grid>
+</Window>
