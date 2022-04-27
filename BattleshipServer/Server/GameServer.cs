@@ -1,6 +1,7 @@
 ﻿using BattleshipServer.Server.Network;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace BattleshipServer.Server
 {
@@ -41,6 +42,7 @@ namespace BattleshipServer.Server
         private void ClientConnected(Socket obj)
         {
             // Max 2 clients per game
+            // TODO: Make server into a lobby server that can host multiple games
             if (clients.Count == 2)
             {
                 obj.Close();
@@ -54,9 +56,6 @@ namespace BattleshipServer.Server
                 client.OnPacket += ProcessPacket;
                 client.OnDisconnect += ClientDisconnected;
 
-                if (clients.Count == 0)
-                    client.GameMaster = true;
-
                 clients.Add(client);
             }
         }
@@ -64,22 +63,39 @@ namespace BattleshipServer.Server
         private void ClientDisconnected(Client client)
         {
             // TODO: Announce disconnect to host
+            Console.WriteLine($"[GameServer] Client disconnected with IP {client.Socket.RemoteEndPoint}");
             clients.Remove((GameClient)client);
-
         }
 
-        private void ProcessPacket(Packet packet)
+        private void ProcessPacket(Client client, Packet packet)
         {
             switch (packet.OpCode)
             {
+                case OpCode.PLAYER_JOINED:
+                    ((GameClient)client).GameMaster = clients.Count == 1;
+
+                    Packet pk = new(OpCode.PLAYER_JOINED);
+                    pk.Write<string>("Test name");
+                    Announce(pk);
+                    break;
                 case OpCode.CREATE_GAME:
                     break;
                 default:
-                    Console.WriteLine("[GameServer] Unhandled packet: " + packet.OpCode);
+                    Console.WriteLine("[ProcessPacket] Unhandled packet: " + packet.OpCode);
+                    Console.WriteLine("[ProcessPacket] Unhandled packet data: " + packet.GetReadableBuffer());
                     break;
             }
         }
 
-        private void Announce(Packet packet) => clients.ForEach(client => client.SendPacket(packet));
+        private void Announce(Packet packet)
+        {
+            lock (clients)
+            {
+                foreach (GameClient client in clients)
+                {
+                    client.SendPacket(packet);
+                }
+            }
+        }
     }
 }

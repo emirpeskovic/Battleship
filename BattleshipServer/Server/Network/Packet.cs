@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace BattleshipServer.Server.Network
 {
@@ -10,7 +11,7 @@ namespace BattleshipServer.Server.Network
 
         TILE_CLICK,
     }
-    
+
     public class Packet : IDisposable
     {
         private byte[] Data { get; set; }
@@ -28,13 +29,24 @@ namespace BattleshipServer.Server.Network
                 byte[] realBuffer = new byte[writer.BaseStream.Position + 2];
                 byte[] bufferSize = BitConverter.GetBytes((short)writer.BaseStream.Position);
                 Array.Copy(bufferSize, realBuffer, 2);
-                Array.Copy(Data, 0, realBuffer, 2, realBuffer.Length);
+                Array.Copy(Data, 0, realBuffer, 2, realBuffer.Length - 2);
                 return realBuffer;
             }
             else
             {
                 return Data;
             }
+        }
+
+        public string GetReadableBuffer()
+        {
+            string readableBuffer = "";
+            var buffer = GetBuffer();
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                readableBuffer += $"{buffer[i]:X2} ";
+            }
+            return readableBuffer;
         }
 
         private BinaryWriter? writer;
@@ -62,18 +74,27 @@ namespace BattleshipServer.Server.Network
 
         // Generic write function
         // Make sure the data is actually convertible to bytes by forcing interface recognition
-        public void Write<T>(T value) where T : IComparable, IComparable<T>, IConvertible, IEquatable<T>, ISpanFormattable, IFormattable
+        public Packet Write<T>(T value) where T : IComparable, IComparable<T>, IConvertible, IEquatable<T>
         {
             if (Outgoing)
             {
-                byte[] bytes = BitConverter.GetBytes(value as dynamic);
-                writer!.Write(bytes);
+                if (typeof(T) == typeof(string))
+                {
+                    writer!.Write((short)((string)(object)value).Length);
+                    writer!.Write(Encoding.UTF8.GetBytes((string)(object)value));
+                }
+                else
+                {
+                    byte[] bytes = BitConverter.GetBytes(value as dynamic);
+                    writer!.Write(bytes);
+                }
             }
+            return this;
         }
 
         // Generic read function
         // Make sure the data is actually convertible to bytes by forcing interface recognition
-        public T? Read<T>() where T : IComparable, IComparable<T>, IConvertible, IEquatable<T>, ISpanFormattable, IFormattable
+        public T? Read<T>() where T : IComparable, IComparable<T>, IConvertible, IEquatable<T>
         {
             if (!Outgoing)
             {

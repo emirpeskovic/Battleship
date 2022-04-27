@@ -11,10 +11,10 @@ var stream = client.GetStream();
 // New thread to read byte data from the server
 new Thread(async() =>
 {
+    var buffer = new byte[1024];
     while (true)
     {
         // Read byte data from the server
-        var buffer = new byte[1024];
         var bytesRead = await stream.ReadAsync(buffer);
         if (bytesRead == 0)
             continue;
@@ -22,9 +22,10 @@ new Thread(async() =>
         // Convert byte array to readable hex values with stringbuilder
         var sb = new StringBuilder();
         for (var i = 0; i < bytesRead; i++)
-            sb.Append(buffer[i].ToString("X2"));
+            sb.Append(buffer[i].ToString("X2")).Append(" ");
 
         Console.WriteLine("[Receive] " + sb.ToString());
+        buffer = new byte[1024];
     }
 }).Start();
 

@@ -6,7 +6,7 @@ namespace BattleshipServer.Server.Network
     {
         public readonly Socket Socket;
 
-        public event Action<Packet>? OnPacket;
+        public event Action<Client, Packet>? OnPacket;
         public event Action<Client>? OnDisconnect;
 
         protected bool disposed = false;
@@ -43,7 +43,7 @@ namespace BattleshipServer.Server.Network
                 var buffer = (byte[])iar.AsyncState!;
                 var packet = new Packet(buffer);
 
-                OnPacket?.Invoke(packet);
+                OnPacket?.Invoke(this, packet);
 
                 Receive();
             }
@@ -69,7 +69,7 @@ namespace BattleshipServer.Server.Network
 
             Socket.BeginSend(packet.Buffer, 0, packet.Buffer.Length, SocketFlags.None, out var error, EndSend, packet);
 
-            if (error != SocketError.Success || error != SocketError.IOPending)
+            if (error != SocketError.Success)
             {
                 Dispose();
             }

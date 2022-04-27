@@ -14,7 +14,7 @@ namespace BattleshipServer.Server
 
         public override void SendPacket(Packet packet)
         {
-            // Probably don't lock entire class..
+            // TODO: phase this out some day :^)
             lock (this)
             {
                 SendAsync(packet);

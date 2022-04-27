@@ -12,7 +12,6 @@ namespace BattleshipServer.Server.Network
         public event Action<Socket>? OnClientAccepted;
         public event Action<Exception>? OnException;
 
-
         public Acceptor(IPAddress address, int port)
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
